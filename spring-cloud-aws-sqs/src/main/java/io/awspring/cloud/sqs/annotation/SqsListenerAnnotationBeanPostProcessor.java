@@ -24,11 +24,13 @@ import io.awspring.cloud.sqs.support.resolver.NotificationMessageArgumentResolve
 import io.awspring.cloud.sqs.support.resolver.QueueAttributesMethodArgumentResolver;
 import io.awspring.cloud.sqs.support.resolver.SqsMessageMethodArgumentResolver;
 import io.awspring.cloud.sqs.support.resolver.VisibilityHandlerMethodArgumentResolver;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import org.springframework.messaging.converter.MessageConverter;
+
+import org.springframework.messaging.converter.SmartMessageConverter;
 import org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver;
 
 /**
@@ -78,7 +80,7 @@ public class SqsListenerAnnotationBeanPostProcessor extends AbstractListenerAnno
 
 	@Override
 	protected Collection<HandlerMethodArgumentResolver> createAdditionalArgumentResolvers(
-			MessageConverter messageConverter, ObjectMapper objectMapper) {
+			SmartMessageConverter messageConverter, ObjectMapper objectMapper) {
 		List<HandlerMethodArgumentResolver> argumentResolvers = new ArrayList<>(createAdditionalArgumentResolvers());
 		argumentResolvers.add(new NotificationMessageArgumentResolver(messageConverter, objectMapper));
 		return argumentResolvers;

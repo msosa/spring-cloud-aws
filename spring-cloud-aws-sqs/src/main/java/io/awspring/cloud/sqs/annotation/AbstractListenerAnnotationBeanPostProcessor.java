@@ -57,6 +57,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.messaging.converter.CompositeMessageConverter;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
+import org.springframework.messaging.converter.SmartMessageConverter;
 import org.springframework.messaging.converter.SimpleMessageConverter;
 import org.springframework.messaging.converter.StringMessageConverter;
 import org.springframework.messaging.handler.annotation.support.DefaultMessageHandlerMethodFactory;
@@ -282,7 +283,7 @@ public abstract class AbstractListenerAnnotationBeanPostProcessor<A extends Anno
 	}
 
 	protected Collection<HandlerMethodArgumentResolver> createAdditionalArgumentResolvers(
-			MessageConverter messageConverter, ObjectMapper objectMapper) {
+		SmartMessageConverter messageConverter, ObjectMapper objectMapper) {
 		return createAdditionalArgumentResolvers();
 	}
 	protected Collection<HandlerMethodArgumentResolver> createAdditionalArgumentResolvers() {

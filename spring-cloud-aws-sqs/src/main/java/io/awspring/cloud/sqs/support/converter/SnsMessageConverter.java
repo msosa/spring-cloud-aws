@@ -17,23 +17,25 @@ package io.awspring.cloud.sqs.support.converter;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.lang.Nullable;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.converter.MessageConversionException;
 import org.springframework.messaging.converter.MessageConverter;
+import org.springframework.messaging.converter.SmartMessageConverter;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.util.Assert;
 
 /**
  * @author Michael Sosa
  */
-public class SnsMessageConverter implements MessageConverter {
+public class SnsMessageConverter implements SmartMessageConverter {
 
 	private final ObjectMapper jsonMapper;
 
-	private final MessageConverter payloadConverter;
+	private final SmartMessageConverter payloadConverter;
 
-	public SnsMessageConverter(MessageConverter payloadConverter, ObjectMapper jsonMapper) {
+	public SnsMessageConverter(SmartMessageConverter payloadConverter, ObjectMapper jsonMapper) {
 		Assert.notNull(payloadConverter, "payloadConverter must not be null");
 		Assert.notNull(jsonMapper, "jsonMapper must not be null");
 		this.payloadConverter = payloadConverter;
@@ -41,7 +43,7 @@ public class SnsMessageConverter implements MessageConverter {
 	}
 
 	@Override
-	public Object fromMessage(Message<?> message, Class<?> targetClass) {
+	public Object fromMessage(Message<?> message, Class<?> targetClass, @Nullable Object conversionHint) {
 		Assert.notNull(message, "message must not be null");
 		Assert.notNull(targetClass, "target class must not be null");
 
@@ -70,13 +72,24 @@ public class SnsMessageConverter implements MessageConverter {
 		String messagePayload = jsonNode.get("Message").asText();
 		GenericMessage<String> genericMessage = new GenericMessage<>(messagePayload);
 		return new SnsMessageWrapper(jsonNode.path("Subject").asText(),
-				this.payloadConverter.fromMessage(genericMessage, targetClass));
+				this.payloadConverter.fromMessage(genericMessage, targetClass, conversionHint));
+	}
+
+	@Override
+	public Object fromMessage(Message<?> message, Class<?> targetClass) {
+		return fromMessage( message, targetClass, null);
 	}
 
 	@Override
 	public Message<?> toMessage(Object payload, MessageHeaders headers) {
 		throw new UnsupportedOperationException(
 				"This converter only supports reading a SNS notification and not writing them");
+	}
+
+	@Override
+	public Message<?> toMessage(Object payload, MessageHeaders headers, Object conversionHint) {
+		throw new UnsupportedOperationException(
+			"This converter only supports reading a SNS notification and not writing them");
 	}
 
 	/**
