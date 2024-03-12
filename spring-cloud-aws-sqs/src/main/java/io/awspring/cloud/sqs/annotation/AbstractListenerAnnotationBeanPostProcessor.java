@@ -57,6 +57,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.messaging.converter.CompositeMessageConverter;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
+import org.springframework.messaging.converter.SmartMessageConverter;
 import org.springframework.messaging.converter.SimpleMessageConverter;
 import org.springframework.messaging.converter.StringMessageConverter;
 import org.springframework.messaging.handler.annotation.support.DefaultMessageHandlerMethodFactory;
@@ -274,13 +275,17 @@ public abstract class AbstractListenerAnnotationBeanPostProcessor<A extends Anno
 		CompositeMessageConverter compositeMessageConverter = createCompositeMessageConverter();
 
 		List<HandlerMethodArgumentResolver> methodArgumentResolvers = new ArrayList<>(
-				createAdditionalArgumentResolvers());
+				createAdditionalArgumentResolvers(compositeMessageConverter, this.endpointRegistrar.getObjectMapper()));
 		methodArgumentResolvers.addAll(createArgumentResolvers(compositeMessageConverter));
 		this.endpointRegistrar.getMethodArgumentResolversConsumer().accept(methodArgumentResolvers);
 		handlerMethodFactory.setArgumentResolvers(methodArgumentResolvers);
 		handlerMethodFactory.afterPropertiesSet();
 	}
 
+	protected Collection<HandlerMethodArgumentResolver> createAdditionalArgumentResolvers(
+		SmartMessageConverter messageConverter, ObjectMapper objectMapper) {
+		return createAdditionalArgumentResolvers();
+	}
 	protected Collection<HandlerMethodArgumentResolver> createAdditionalArgumentResolvers() {
 		return Collections.emptyList();
 	}
